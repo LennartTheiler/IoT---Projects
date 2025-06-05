@@ -1,0 +1,173 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bilderkennung</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #5E5E5E;
+      --fg: #2e3a46;
+      --accent: #4a90e2;
+      --card: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: #CCCCCC;
+    }
+        .container {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .card {
+      background: #CCCCCC;
+      border-radius: 1rem;
+      box-shadow: 0 4px 16px var(--shadow);
+      padding: 1rem;
+      flex: 1 1 400px;
+      max-width: 48%;
+    }
+    .card h3 {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .card img {
+      width: 100%;
+      border-radius: 0.5rem;
+    }
+    #controls {
+      text-align: center;
+      margin: 2rem 0 1rem;
+    }
+    button {
+      background: #9ACD32;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease-in-out, transform 0.1s;
+    }
+    button:hover {
+      background: #00CD66;
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    #loading {
+      margin-top: 0.5rem;
+      display: none;
+      color: #CCCCCC;
+    }
+    .loader {
+      border: 4px solid var(--card);
+      border-top: 4px solid var(--accent);
+      border-radius: 50%;
+      width: 1.5rem;
+      height: 1.5rem;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      color: #9ACD32;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    #prompt-output {
+      margin-top: 1rem;
+      background: #CCCCCC;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      box-shadow: 0 2px 8px var(--shadow);
+      min-height: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bilderkennung</h1>
+  <div class="container">
+    <div class="card">
+      <h3>Live-Stream</h3>
+      <img src="/video_feed" alt="Kamera-Live-Stream">
+    </div>
+    <div class="card">
+      <h3>Letzter Screenshot</h3>
+      <img src="/static/screenshots/screenshot.jpg" id="screenshot-img" alt="Screenshot">
+    </div>
+  </div>
+  <div id="controls">
+    <button onclick="buttonClicked()">📸 Mach einen Screenshot</button>
+    <div id="loading"><span class="loader"></span> Analyse läuft…</div>
+  </div>
+  <div id="prompt-output">Analyse-Text wird hier angezeigt...</div>
+
+  <script>
+    function buttonClicked() {
+      document.getElementById("loading").style.display = "inline-block";
+      fetch('/button_pressed', { method: 'POST' })
+        .then(res => res.text())
+        .then(() => {
+          document.getElementById("screenshot-img").src =
+            "/static/screenshots/screenshot.jpg?" + Date.now();
+          setTimeout(fetchPromptAndGenerateAudio, 1000);
+        })
+        .finally(() => {
+          document.getElementById("loading").style.display = "none";
+        });
+    }
+
+    function updateScreenshot() {
+      document.getElementById("screenshot-img").src =
+        "/static/screenshots/screenshot.jpg?" + Date.now();
+    }
+    function fetchPromptOnly() {
+      fetch('/get_prompt')  // Nur GET, KEIN POST
+        .then(res => res.text())
+        .then(txt => {
+          document.getElementById("prompt-output").innerText = txt;
+    });
+  }
+
+    function fetchPromptAndGenerateAudio() {
+      fetch('/get_prompt')
+        .then(res => res.text())
+        .then(txt => {
+          document.getElementById("prompt-output").innerText = txt;
+
+          // Audio nur hier erzeugen!
+          fetch('/get_prompt', { method: 'POST' });
+        });
+      }
+
+
+    // Automatisches Aktualisieren für physischen Button (alle 5 Sekunden)
+    setInterval(() => {
+      updateScreenshot();
+      fetchPromptOnly();
+// MUSS NOCH ZU FETSCHPROMPTANDGENERATEAUDIO GEÄNDERT WERDEN
+    }, 5000);
+    fetchPrompt();
+  </script>
+</body>
+</html>
