@@ -15,13 +15,16 @@ app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 last_frame = None
 
-SCREENSHOT_DIR = '/home/laboradmin/Projekt_2/static/screenshots'
-PROMPT_FILE   = '/home/laboradmin/Projekt_2/static/prompt.txt'
+SCREENSHOT_DIR = '/static/screenshots'
+PROMPT_FILE   = '/static/prompt.txt'
 
-stream_url = "http://192.168.179.215:81/stream"
+stream_url = "http://192.168.xxx.xxx:81/stream"
 cap = cv2.VideoCapture(stream_url)
 
 def generate_frames():
+    """
+    Liest kontinuierlich Frames vom Kamera-Stream, rotiert sie und gibt sie als MJPEG-Stream aus.
+    """
     global last_frame
     while True:
         success, frame = cap.read()
@@ -36,6 +39,9 @@ def generate_frames():
 
 @app.route('/')
 def index():
+    """
+    Lädt das HTML-Frontend und gibt die Startseite zurück.
+    """
     print("starting html-file...")
     server_ip = request.host
     return render_template('index.html', server_ip=server_ip)
@@ -43,6 +49,9 @@ def index():
 
 @app.route('/button_pressed', methods=['POST'])
 def button_pressed():
+    """
+    Speichert den aktuellen Frame als Screenshot und ruft Kamera.py zur Bildanalyse auf.
+    """
     print("Button wurde gedrückt!")
     if last_frame is None:
         print("Kein Bild verfügbar.")
@@ -71,6 +80,9 @@ def button_pressed():
 
 @app.route('/get_prompt', methods=['GET', 'POST'])
 def get_prompt_first():
+    """
+    Gibt den Analyse-Prompt zurück (GET) oder erzeugt Sprachausgabe und sendet WAV-Datei an ESP32 (POST).
+    """
     if request.method == 'GET':
         if os.path.exists(PROMPT_FILE):
             with open(PROMPT_FILE, 'r', encoding='utf-8') as f:
@@ -85,11 +97,17 @@ def get_prompt_first():
 
 @app.route('/video_feed')
 def video_feed():
+    """
+    Gibt den MJPEG-Videostream des Kamerafeeds zurück.
+    """
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 def send_wav_to_esp():
-    url = "http://192.168.179.159/upload_audio"  # ESP-IP
+    """
+    Sendet die WAV-Datei per HTTP POST an das ESP32-Modul.
+    """
+    url = "http://192.168.xxx.xxx/upload_audio"  # ESP-IP
     mp3_path = "./output.wav"
 
     if os.path.exists(mp3_path):
@@ -102,11 +120,17 @@ def send_wav_to_esp():
                 print("Fehler beim Senden an ESP:", e)
 
 def start_mqtt_client():
+    """
+    Startet den MQTT-Client in einem eigenen Thread, um auf Trigger vom ESP32 zu reagieren.
+    """
     mqtt_client = MQTTClient()
     mqtt_client.start()
 
 
 def create_wave():
+    """
+    Wandelt den Analyse-Text in eine WAV-Audiodatei um und komprimiert diese für die Übertragung.
+    """
     tts = TTS()
     tts.text_to_speech()
     print("output.wav wurde erstellt")
