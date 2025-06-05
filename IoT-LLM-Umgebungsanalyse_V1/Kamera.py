@@ -2,8 +2,8 @@ import ollama
 import os
 
 # Pfad zu Datei und Bild
-PROMPT_FILE = '/home/laboradmin/Projekt_2/static/prompt.txt'
-IMAGE_PATH  = '/home/laboradmin/Projekt_2/static/screenshots/screenshot.jpg'
+PROMPT_FILE = '/static/prompt.txt'
+IMAGE_PATH  = '/static/screenshots/screenshot.jpg'
 
 # Sicherstellen, dass das Bild existiert
 if not os.path.exists(IMAGE_PATH):
