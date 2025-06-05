@@ -2,7 +2,7 @@ from gtts import gTTS
 from pydub import AudioSegment
 
 class TTS:
-    def __init__(self, text_path="/home/laboradmin/Projekt_2/static/prompt.txt"):
+    def __init__(self, text_path="/static/prompt.txt"):
         with open(text_path, 'r', encoding='utf-8') as f:
             self.text = f.read()
 
