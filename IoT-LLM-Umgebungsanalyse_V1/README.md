@@ -8,7 +8,7 @@ Das Projekt kombiniert Edge-Geräte, Cloud-Services und KI-basierte Bildanalyse.
 
 ---
 
-## 🗂️ Projektstruktur
+## Projektstruktur
 
 ```text
 projekt/
@@ -47,12 +47,12 @@ projekt/
    python3 main_L.py
    ```
 
-2. **ESP32-CAM konfigurieren**, um den Livestream unter z. B. `http://192.168.179.215:81/stream` verfügbar zu machen.
+2. **ESP32-CAM konfigurieren**, um den Livestream unter z. B. `http://192.168.xxx.xxx:81/stream` verfügbar zu machen.
 
 3. **ESP32-MQTT-Button** sendet Trigger an:
    ```
    Topic: kamera/trigger
-   Broker: 192.168.179.244:1883
+   Broker: 192.168.xxx.xxx:1883
    ```
 
 ---
